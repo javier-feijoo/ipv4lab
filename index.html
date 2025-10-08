@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<!-- IPv4 Lab — Autor: Javier Feijóo López — Licencia: CC BY-SA 4.0 -->
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IPv4 Lab — Aprender, Explorar y Jugar</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="hdr-row">
+        <div>
+          <h1>IPv4 Lab</h1>
+          <p class="subtitle">Aprende IPv4, máscaras, red y broadcast de forma interactiva</p>
+        </div>
+        <div class="hdr-actions">
+          <button id="themeToggle" title="Cambiar tema">Tema: Oscuro</button>
+          <button id="layoutToggle" title="Modo proyector">Proyector: Off</button>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button class="tab active" data-tab="explorar" role="tab" aria-selected="true">Explorar</button>
+      <button class="tab" data-tab="aprender" role="tab" aria-selected="false">Aprender</button>
+      <button class="tab" data-tab="juego" role="tab" aria-selected="false">Juego</button>
+      <button class="tab" data-tab="subnetting" role="tab" aria-selected="false">Subnetting</button>
+      <button class="tab" data-tab="calc" role="tab" aria-selected="false">Calculadora</button>
+    </nav>
+
+    <main>
+      <!-- EXPLORAR: Calculadora IPv4 -->
+      <section id="explorar" class="tab-panel active" role="tabpanel">
+        <h2>Calculadora IPv4</h2>
+        <form class="card form-grid" onsubmit="return false" autocomplete="off">
+          <label>
+            <span>Dirección IP</span>
+            <input id="ip" type="text" inputmode="numeric" placeholder="e.g. 192.168.1.10" />
+          </label>
+          <label>
+            <span>Máscara (CIDR)</span>
+            <div class="cidr-control">
+              <input id="cidr" type="range" min="0" max="32" value="24" />
+              <output id="cidrValue">/24</output>
+            </div>
+          </label>
+          <label>
+            <span>Máscara (dotted decimal)</span>
+            <input id="mask" type="text" inputmode="numeric" placeholder="e.g. 255.255.255.0" />
+          </label>
+        </form>
+
+        <div class="card bits">
+          <h3>Representación Binaria</h3>
+          <div class="bits-row"><div class="row-label">IP</div><div id="bits-ip" class="bits-32"></div></div>
+          <div class="bits-row"><div class="row-label">Máscara</div><div id="bits-mask" class="bits-32"></div></div>
+          <div class="bits-row"><div class="row-label">Red</div><div id="bits-net" class="bits-32"></div></div>
+          <div class="bits-row"><div class="row-label">Broadcast</div><div id="bits-bc" class="bits-32"></div></div>
+          <p class="hint">Los bits de red se muestran en azul, los de host en naranja.</p>
+        </div>
+
+        <div class="results grid-2">
+          <div class="card">
+            <h3>Resultados</h3>
+            <ul class="kv">
+              <li><span>Dirección de red</span><strong id="net"></strong></li>
+              <li><span>Broadcast</span><strong id="bc"></strong></li>
+              <li><span>Primer host</span><strong id="first"></strong></li>
+              <li><span>Último host</span><strong id="last"></strong></li>
+              <li><span>Hosts utilizables</span><strong id="hosts"></strong></li>
+              <li><span>Prefijo</span><strong id="prefix"></strong></li>
+              <li><span>Clase</span><strong id="class"></strong></li>
+              <li><span>Privada</span><strong id="private"></strong></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Explicación</h3>
+            <div id="explain" class="explain"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- APRENDER: Conceptos -->
+      <section id="aprender" class="tab-panel" role="tabpanel" hidden>
+        <h2>Conceptos Clave</h2>
+        <div class="card">
+          <ul class="bullets">
+            <li>IPv4 usa 32 bits, divididos en 4 octetos de 8 bits (p. ej., <code>192.168.1.10</code>).</li>
+            <li>El prefijo <code>/n</code> (CIDR) indica cuántos bits son de red; el resto son de host.</li>
+            <li>Red = IP <code>AND</code> máscara. Broadcast = red <code>OR</code> (NOT máscara).</li>
+            <li>Rango de hosts: de <em>red + 1</em> a <em>broadcast − 1</em> (excepto /31 y /32).</li>
+            <li>Hosts utilizables = <code>2^(32 − n) − 2</code> para <code>n ≤ 30</code>; en <code>/31</code> hay 2 y en <code>/32</code> hay 1.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Máscaras y CIDR</h3>
+          <ul class="bullets">
+            <li>Máscaras válidas: bits a <strong>1</strong> consecutivos de izquierda a derecha y luego todo <strong>0</strong>.</li>
+            <li>Equivalencias útiles: <code>/8 = 255.0.0.0</code>, <code>/16 = 255.255.0.0</code>, <code>/24 = 255.255.255.0</code>, <code>/26 = 255.255.255.192</code>, <code>/30 = 255.255.255.252</code>.</li>
+            <li><em>Bloque</em> o tamaño de subred = <code>2^(32 − n)</code> direcciones (incluye red y broadcast).</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Cálculos básicos con ejemplos</h3>
+          <details open>
+            <summary><strong>Ejemplo 1</strong>: <code>172.16.34.129/20</code></summary>
+            <ul class="bullets">
+              <li><strong>Bloque</strong>: <code>2^(32 − 20) = 4096</code> direcciones (<code>255.255.240.0</code>).</li>
+              <li>La red más cercana múltiplo de 4096 cae en <code>172.16.32.0</code>.</li>
+              <li><strong>Red</strong>: <code>172.16.32.0</code> — <strong>Broadcast</strong>: <code>172.16.47.255</code>.</li>
+              <li><strong>Primer/Último host</strong>: <code>172.16.32.1</code> — <code>172.16.47.254</code>.</li>
+              <li><strong>Hosts utilizables</strong>: <code>4096 − 2 = 4094</code>.</li>
+            </ul>
+          </details>
+          <details>
+            <summary><strong>Ejemplo 2</strong>: <code>10.1.5.200/26</code></summary>
+            <ul class="bullets">
+              <li><strong>Bloque</strong>: <code>2^(32 − 26) = 64</code> (<code>255.255.255.192</code>).</li>
+              <li>Subredes de /26 en ese octeto: …, <code>.128</code>, <code>.192</code> (siguiente <code>.256</code> no existe). <strong>Red</strong>: <code>10.1.5.192</code>.</li>
+              <li><strong>Broadcast</strong>: <code>10.1.5.255</code>. <strong>Rango</strong>: <code>10.1.5.193</code> — <code>10.1.5.254</code>.</li>
+              <li><strong>Hosts utilizables</strong>: <code>64 − 2 = 62</code>.</li>
+            </ul>
+          </details>
+        </div>
+
+        <div class="card">
+          <h3>Clases y rangos especiales</h3>
+          <ul class="bullets">
+            <li><strong>Clases tradicionales</strong>: A <code>0–127</code>, B <code>128–191</code>, C <code>192–223</code>, D Multicast <code>224–239</code>, E Experimental <code>240–255</code>.</li>
+            <li><strong>Privadas</strong>: <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>.</li>
+            <li><strong>Link‑local (APIPA)</strong>: <code>169.254.0.0/16</code> — <strong>Loopback</strong>: <code>127.0.0.0/8</code>.</li>
+            <li><strong>Indeterminada</strong>: <code>0.0.0.0</code> — <strong>Broadcast limitado</strong>: <code>255.255.255.255</code>.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Subnetting rápido (FLSM)</h3>
+          <ol class="bullets">
+            <li>Elige cuántas subredes necesitas: <code>k = ⌈log2(n)⌉</code> bits extra.</li>
+            <li>Nuevo prefijo: <code>/n' = /n + k</code>. Bloque: <code>2^(32 − n')</code>.</li>
+            <li>Enumera redes sumando el bloque a partir de la red base.</li>
+          </ol>
+          <details>
+            <summary><strong>Ejemplo</strong>: <code>192.168.1.0/24</code> en 6 subredes</summary>
+            <ul class="bullets">
+              <li><code>k = ⌈log2(6)⌉ = 3</code> → prefijo <code>/27</code>, bloque <code>32</code>.</li>
+              <li>Subredes: <code>.0</code>, <code>.32</code>, <code>.64</code>, <code>.96</code>, <code>.128</code>, <code>.160</code>, <code>.192</code>, <code>.224</code>.</li>
+              <li>Generadas 8; 6 usadas y 2 libres.</li>
+            </ul>
+          </details>
+        </div>
+
+        <div class="card">
+          <h3>VLSM (tamaños variables)</h3>
+          <ol class="bullets">
+            <li>Ordena las necesidades de hosts de mayor a menor.</li>
+            <li>Para cada una, calcula el prefijo mínimo que soporte <em>hosts + 2</em>.</li>
+            <li>Alinea cada subred al siguiente múltiplo de su bloque dentro de la red base.</li>
+          </ol>
+          <details>
+            <summary><strong>Ejemplo</strong>: <code>192.168.10.0/24</code> con <code>100, 50, 20</code> hosts</summary>
+            <ul class="bullets">
+              <li><code>100 → /25</code> (bloque 128) → <code>192.168.10.0/25</code>.</li>
+              <li><code>50 → /26</code> (bloque 64)  → <code>192.168.10.128/26</code>.</li>
+              <li><code>20 → /27</code> (bloque 32)  → <code>192.168.10.192/27</code>, quedan libres <code>/27</code> y más pequeños.</li>
+            </ul>
+          </details>
+        </div>
+
+        <div class="card">
+          <h3>Trucos y errores comunes</h3>
+          <ul class="bullets">
+            <li><strong>/31</strong> y <strong>/32</strong> no siguen la regla de restar 2 hosts: son casos especiales (enlaces punto‑a‑punto y host único).</li>
+            <li>Si una máscara no es “1s seguidos y luego 0s”, no es válida (no es CIDR).</li>
+            <li>Usa el <em>bloque</em> para saltar rápidamente entre subredes en el octeto donde cambia el prefijo.</li>
+            <li>Recuerda que los rangos privados no son enrutables en Internet; se usan en LANs.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- JUEGO: Quiz -->
+      <section id="juego" class="tab-panel" role="tabpanel" hidden>
+        <h2>Juego: ¡Pon a prueba tu red!</h2>
+        <div class="card game">
+          <div class="game-controls">
+            <div class="controls-left">
+              <button id="startGame">Iniciar</button>
+              <button id="stopGame" disabled>Detener</button>
+              <button id="skipGame" class="btn-secondary" disabled>Saltar</button>
+              <div class="duration-chips" title="Duración de la partida">
+                <span class="field-label">Duración</span>
+                <div class="chip-group" id="durationChips">
+                  <button class="chip chip-duration" data-minutes="1">1m</button>
+                  <button class="chip chip-duration" data-minutes="3">3m</button>
+                  <button class="chip chip-duration active" data-minutes="5">5m</button>
+                  <button class="chip chip-duration" data-minutes="10">10m</button>
+                </div>
+              </div>
+            </div>
+            <div class="time-big"><span id="timeBig">05:00</span></div>
+          </div>
+          <div class="timebar" aria-hidden="true"><div id="timeFill"></div></div>
+          <div class="game-question" id="question">Pulsa “Iniciar” para comenzar.</div>
+          <div class="game-answer">
+            <input id="answer" type="text" placeholder="Escribe tu respuesta y Enter" disabled />
+          </div>
+          <div id="feedback" class="feedback" aria-live="polite"></div>
+          <div class="scoreboard">
+            <div class="scores">
+              <span>Puntos: <strong id="score">0</strong></span>
+              <span>Mejor: <strong id="bestScore">0</strong></span>
+              <span>Racha: <strong id="streak">0</strong></span>
+              <span>Mejor racha: <strong id="bestStreak">0</strong></span>
+              <span class="muted">Tiempo: <strong id="timeLeft">60</strong>s</span>
+            </div>
+            <button id="downloadLog" class="btn-secondary" disabled>Descargar sesión</button>
+          </div>
+          <div class="leaderboard" id="leaderboard">
+            <h4>Ranking</h4>
+            <ul id="leaderboardList" class="lb-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBNETTING: FLSM y VLSM -->
+      <section id="subnetting" class="tab-panel" role="tabpanel" hidden>
+        <h2>Subnetting</h2>
+        <div class="card form-grid-sim">
+          <label>
+            <span>Red base (IP)</span>
+            <input id="sim-ip" type="text" inputmode="numeric" placeholder="e.g. 192.168.0.0" />
+          </label>
+          <label>
+            <span>Prefijo base (CIDR)</span>
+            <div class="cidr-control">
+              <input id="sim-cidr" type="range" min="0" max="32" value="24" />
+              <output id="sim-cidrValue">/24</output>
+            </div>
+          </label>
+
+          <fieldset class="mode">
+            <legend>Modo</legend>
+            <label class="inline"><input type="radio" name="sim-mode" value="flsm" checked /> FLSM (subredes fijas)</label>
+            <label class="inline"><input type="radio" name="sim-mode" value="vlsm" /> VLSM (lista de hosts)</label>
+          </fieldset>
+
+          <div id="flsm-controls" class="mode-controls">
+            <label>
+              <span>Bits de subred</span>
+              <input id="sim-sub-bits" type="number" min="0" max="16" value="2" />
+            </label>
+            <label>
+              <span>Cantidad de subredes</span>
+              <input id="sim-subnets" type="number" min="1" value="4" />
+            </label>
+          </div>
+
+          <div id="vlsm-controls" class="mode-controls">
+            <label class="span-2">
+              <span>Hosts por subred (separados por coma/espacio)</span>
+              <input id="sim-vlsm-hosts" type="text" placeholder="p.ej. 100, 50, 20, 5" />
+            </label>
+          </div>
+
+          <div class="actions">
+            <button id="sim-run">Simular</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div id="sim-summary" class="sim-summary"></div>
+          <div id="sim-alert" class="sim-alert" aria-live="polite"></div>
+          <div class="table-wrap">
+            <table class="sim-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Subred</th>
+                  <th>Prefijo</th>
+                  <th>Máscara</th>
+                  <th>Red</th>
+                  <th>Primer Host</th>
+                  <th>Último Host</th>
+                  <th>Broadcast</th>
+                  <th>Hosts</th>
+                  <th class="req-col">Solicitud</th>
+                </tr>
+              </thead>
+              <tbody id="sim-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- CALCULADORA: Bits interactivos -->
+      <section id="calc" class="tab-panel" role="tabpanel" hidden>
+        <h2>Calculadora Interactiva</h2>
+        <div class="card form-grid-sim">
+          <label>
+            <span>Red base (IP)</span>
+            <input id="bits-sim-ip" type="text" inputmode="numeric" placeholder="e.g. 192.168.1.0" />
+          </label>
+          <label>
+            <span>Prefijo (CIDR)</span>
+            <div class="cidr-control">
+              <input id="bits-cidr" type="range" min="0" max="32" value="24" />
+              <output id="bits-cidrValue">/24</output>
+            </div>
+          </label>
+          <label>
+            <span>Bloquear bits de red</span>
+            <input id="bits-lock" type="checkbox" checked />
+          </label>
+        </div>
+
+        <div class="card bits">
+          <h3>IP resultante (clic para alternar bits)</h3>
+          <div class="bits-row"><div class="row-label">IP</div><div id="bits-sim-grid" class="bits-32"></div></div>
+          <div class="octets-row"><div class="row-label"></div><div id="bits-ip-octets" class="octets"></div></div>
+          <div class="bits-row"><div class="row-label">Máscara</div><div id="bits-sim-mask" class="bits-32"></div></div>
+          <div class="octets-row"><div class="row-label"></div><div id="bits-mask-octets" class="octets"></div></div>
+          <div class="bits-tools">
+            <button id="bits-reset0">Host = 0</button>
+            <button id="bits-reset1">Host = 1</button>
+            <button id="bits-random">Host aleatorio</button>
+          </div>
+        </div>
+
+        <div class="results grid-2">
+          <div class="card">
+            <h3>Resultados</h3>
+            <ul class="kv">
+              <li><span>IP</span><strong id="bits-res-ip"></strong></li>
+              <li><span>Red</span><strong id="bits-res-net"></strong></li>
+              <li><span>Broadcast</span><strong id="bits-res-bc"></strong></li>
+              <li><span>Prefijo</span><strong id="bits-res-prefix"></strong></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Notas</h3>
+            <div class="explain">Con “Bloquear bits de red” activo, solo puedes cambiar los bits de host; la parte de red queda fija según el prefijo.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <small>Créditos: Javier Feijóo López — Docente Informática en Secundaria, Xunta de Galicia — <a href="https://github.com/javier-feijoo" target="_blank" rel="noopener noreferrer">github.com/javier-feijoo</a></small>
+    </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/calc.js"></script>
+    <script src="js/subnetting.js"></script>
+    <script src="js/bitcalc.js"></script>
+    <script src="js/game.js"></script>
+  </body>
+  </html>
