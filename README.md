@@ -77,6 +77,5 @@ IPv4-Lab/
 Créditos: Javier Feijóo López — Docente Informática en Secundaria, Xunta de Galicia — [github.com/javier-feijoo](https://github.com/javier-feijoo)
 
 ## Licencia
-
-Autor: Javier Feijóo López. Este proyecto se publica bajo **Creative Commons CC BY-SA 4.0**. 
+Este proyecto se publica bajo **Creative Commons CC BY-SA 4.0**. 
 Puedes compartir y adaptar el material citando la autoría y manteniendo la misma licencia.
