@@ -9,6 +9,9 @@
   const bitsMaskGrid = document.getElementById('bits-sim-mask');
   const ipOctetsEl = document.getElementById('bits-ip-octets');
   const maskOctetsEl = document.getElementById('bits-mask-octets');
+  const bitsWeightsGrid = document.getElementById('bits-weights');
+  const bitsWeightsRow = document.getElementById('row-weights');
+  const bitsHelp = document.getElementById('bits-help');
   const bitsReset0 = document.getElementById('bits-reset0');
   const bitsReset1 = document.getElementById('bits-reset1');
   const bitsRandom = document.getElementById('bits-random');
@@ -62,15 +65,37 @@
     }
   }
 
+  function renderWeights(cidr){
+    if (!bitsWeightsGrid || !bitsWeightsRow) return;
+    const show = !!(bitsHelp && bitsHelp.checked);
+    // Oculta sin colapsar espacio para evitar movimientos de layout
+    bitsWeightsRow.classList.toggle('invisible', !show);
+    if (!show) { bitsWeightsGrid.innerHTML=''; return; }
+    bitsWeightsGrid.innerHTML='';
+    const perOctet = [128,64,32,16,8,4,2,1];
+    for (let oct=0; oct<4; oct++){
+      for (let i=0;i<8;i++){
+        const globalIdx = oct*8 + i; // 0..31
+        const isNetBit = globalIdx < cidr;
+        const el = document.createElement('div');
+        el.className = 'bit weight ' + (isNetBit?'net':'host');
+        el.textContent = String(perOctet[i]);
+        bitsWeightsGrid.appendChild(el);
+      }
+      if (oct<3) { const dot=document.createElement('div'); dot.className='dot'; dot.textContent='.'; bitsWeightsGrid.appendChild(dot); }
+    }
+  }
+
   function updateBitsSim(){
     const ipO = parseOctets(bitsSimIp.value); const cidr = clamp(Number(bitsCidr.value)|0,0,32); const maskO = maskFromCidr(cidr); const maskU = toUint32(maskO); bitsCidrVal.textContent = `/${cidr}`;
     if (!ipO){ bitsResIp.textContent=bitsResNet.textContent=bitsResBc.textContent=bitsResPrefix.textContent=''; bitsGrid.innerHTML=''; return; }
-    const base = normalizeNetwork(ipO, cidr); bitsSimIp.value = octetsToStr(fromUint32(base.netU)); const hostMask=(~maskU)>>>0; bitsHostU = (bitsHostU & hostMask)>>>0; const ipU=(base.netU | bitsHostU)>>>0; const bcU = broadcast(base.netU, maskU); rebuildBitsGrid(base.netU, maskU, cidr); rebuildMaskGrid(cidr); bitsResIp.textContent=octetsToStr(fromUint32(ipU)); bitsResNet.textContent=octetsToStr(fromUint32(base.netU)); bitsResBc.textContent=octetsToStr(fromUint32(bcU)); bitsResPrefix.textContent=`/${cidr}`; renderOctets(ipOctetsEl, ipU); renderOctets(maskOctetsEl, maskU);
+    const base = normalizeNetwork(ipO, cidr); bitsSimIp.value = octetsToStr(fromUint32(base.netU)); const hostMask=(~maskU)>>>0; bitsHostU = (bitsHostU & hostMask)>>>0; const ipU=(base.netU | bitsHostU)>>>0; const bcU = broadcast(base.netU, maskU); rebuildBitsGrid(base.netU, maskU, cidr); rebuildMaskGrid(cidr); renderWeights(cidr); bitsResIp.textContent=octetsToStr(fromUint32(ipU)); bitsResNet.textContent=octetsToStr(fromUint32(base.netU)); bitsResBc.textContent=octetsToStr(fromUint32(bcU)); bitsResPrefix.textContent=`/${cidr}`; renderOctets(ipOctetsEl, ipU); renderOctets(maskOctetsEl, maskU);
   }
 
   bitsCidr.addEventListener('input', updateBitsSim);
   bitsSimIp.addEventListener('input', ()=>{ bitsHostU=0; updateBitsSim(); });
   bitsLock.addEventListener('change', updateBitsSim);
+  if (bitsHelp) bitsHelp.addEventListener('change', updateBitsSim);
   bitsReset0.addEventListener('click', ()=>{ bitsHostU=0; updateBitsSim(); });
   bitsReset1.addEventListener('click', ()=>{ const cidr=clamp(Number(bitsCidr.value)|0,0,32); const hostMask=(~toUint32(maskFromCidr(cidr)))>>>0; bitsHostU=hostMask; updateBitsSim(); });
   bitsRandom.addEventListener('click', ()=>{ const cidr=clamp(Number(bitsCidr.value)|0,0,32); const hostMask=(~toUint32(maskFromCidr(cidr)))>>>0; const r=(Math.floor(Math.random()*0xffffffff))>>>0; bitsHostU = r & hostMask; updateBitsSim(); });

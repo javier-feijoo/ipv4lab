@@ -18,6 +18,7 @@ Aplicación web estática para enseñar direccionamiento IPv4 de forma visual e 
   - FLSM: bits ↔ número de subredes sincronizados (gana el último editado). Muestra subredes generadas y cuántas “solicitadas”/“libres”.
   - VLSM: lista de requerimientos (hosts) ordenada descendente y asignada dentro de la red base.
 - **Calculadora**: simulador por bits. Permite pulsar bits de IP (bloqueando o no la parte de red) y fijar el prefijo pulsando en los bits de la máscara. Muestra octetos decimales de apoyo.
+ - **Calculadora**: simulador por bits. Permite pulsar bits de IP (bloqueando o no la parte de red) y fijar el prefijo pulsando en los bits de la máscara. Muestra octetos decimales de apoyo. Incluye un toggle de “Mostrar pesos de bits” para enseñar los pesos 128·64·32·… sobre los bits de IP.
 - **Juego**: preguntas aleatorias (red, broadcast, hosts, primer/último host, máscara↔prefijo, clase, privada sí/no).
 - **Juego**: preguntas aleatorias (red, broadcast, hosts, primer/último host, máscara↔prefijo, clase, privada sí/no, wildcard, ¿red?, ¿broadcast?, ¿misma subred?, tamaño de bloque, ¿host utilizable?, subredes con bits prestados). Con barra de tiempo, efectos visuales, botón Saltar y rachas.
  - **Juego**: preguntas aleatorias (red, broadcast, hosts, primer/último host, máscara↔prefijo, clase, privada sí/no, wildcard, ¿red?, ¿broadcast?, ¿misma subred?, tamaño de bloque, ¿host utilizable?, subredes con bits prestados). Con barra de tiempo, efectos visuales, botón Saltar y rachas. Selector de duración (1–10 min) y descarga del log de la sesión.

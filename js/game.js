@@ -93,7 +93,7 @@
     const minutes = getSelectedMinutes();
     totalTime = Math.max(60, Math.min(600, minutes*60));
     score=0; timeLeft=totalTime; streak=0; correctCount=0; wrongCount=0; skipCount=0; sessionLog = [];
-    scoreEl.textContent='0'; timeLeftEl.textContent=String(timeLeft); if (streakEl) streakEl.textContent='0';
+    scoreEl.textContent='0'; timeLeftEl.textContent=String(timeLeft); if (timeBig) timeBig.textContent = formatTime(timeLeft); if (streakEl) streakEl.textContent='0';
     startBtn.disabled=true; stopBtn.disabled=false; answerEl.disabled=false; if (skipBtn) skipBtn.disabled=false;
     if (downloadBtn) downloadBtn.disabled = true;
     if (timeFill) { timeFill.style.width = '100%'; if (timeFill.parentElement) timeFill.parentElement.classList.remove('low'); }
@@ -115,7 +115,7 @@
     const prevBest = Number(localStorage.getItem(bestKey) || '0');
     if (score > prevBest) localStorage.setItem(bestKey, String(score));
     if (bestScoreEl) bestScoreEl.textContent = localStorage.getItem(bestKey) || '0';
-    if (timeFill) timeFill.style.width = '0%'; if (uiTimerId) { clearInterval(uiTimerId); uiTimerId=null; }
+    if (timeFill) timeFill.style.width = '0%'; if (timeBig) timeBig.textContent = formatTime(timeLeft); if (uiTimerId) { clearInterval(uiTimerId); uiTimerId=null; }
     // Habilita descarga del log
     if (downloadBtn) {
       const txt = buildSessionText();
@@ -157,6 +157,7 @@
   if (durationSel) durationSel.addEventListener('change', refreshBest);
   if (durationChips) durationChips.addEventListener('click', (e)=>{ const btn = e.target.closest('.chip-duration'); if (!btn) return; durationChips.querySelectorAll('.chip-duration').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); refreshBest(); if (timeBig) timeBig.textContent = formatTime((Number(btn.dataset.minutes)||5)*60); });
   refreshBest();
+  if (timeBig) timeBig.textContent = formatTime(getSelectedMinutes()*60);
 
   function buildSessionText(){
     const minutes = Math.round(totalTime/60);

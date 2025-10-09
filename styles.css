@@ -123,8 +123,12 @@ output { min-width: 40px; text-align: right; color: var(--accent); font-weight: 
 /* En Subnetting acortamos el slider para mantener todo en una línea */
 #subnetting .cidr-control { max-width: 320px; }
 
+.form-grid-sim label.disabled-field { opacity: 0.5; }
+.form-grid-sim label.disabled-field input { cursor: not-allowed; background: rgba(148,163,184,0.12); }
+
 .bits { overflow-x: auto; overflow-y: hidden; }
 .bits-row { display: grid; grid-template-columns: 120px 1fr; gap: 10px; align-items: center; margin: 8px 0; padding: 6px 8px; border-radius: 8px; }
+.bits-row.invisible { visibility: hidden; }
 .row-label { color: var(--muted); font-size: 14px; font-weight: 600; }
 .bits-32 { display: grid; grid-template-columns: repeat(35, var(--bit-size)); gap: 6px; width: max-content; }
 .bit, .dot {
@@ -142,6 +146,10 @@ output { min-width: 40px; text-align: right; color: var(--accent); font-weight: 
 .bit.net { background: rgba(59,130,246,0.12); color: #9cc2ff; border-color: rgba(59,130,246,0.35); }
 .bit.host { background: rgba(245,158,11,0.12); color: #ffd89a; border-color: rgba(245,158,11,0.35); }
 .dot { opacity: 0.5; border: none; width: 10px; height: var(--bit-size); display: flex; align-items: center; justify-content: center; }
+/* Pesos de bits */
+.bit.weight { font-size: 12px; background: transparent; color: var(--muted); border: none; }
+[data-theme="light"] .bit.weight { color: #475569; }
+[data-theme="light"] .bit.weight { color: #475569; border-color: #cbd5e1; }
 
 /* Mejora de contraste en tema claro */
 [data-theme="light"] .bit.net { background: rgba(37,99,235,0.20); color: #1e3a8a; border-color: rgba(37,99,235,0.45); }
@@ -239,12 +247,21 @@ button.btn-secondary:hover { background: rgba(37,99,235,0.08); }
 .select-pill:focus { outline: none; box-shadow: 0 0 0 2px rgba(37,99,235,0.25); border-color: var(--accent); }
 .select-pill:hover { border-color: var(--accent); }
 
+.switch { display: inline-flex; align-items: center; gap: 8px; align-self: end; }
+.switch input { display: none; }
+.switch-track { width: 36px; height: 18px; background: var(--border); border-radius: 999px; position: relative; transition: background 0.2s ease; }
+.switch-track::after { content: ""; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #fff; top: 2px; left: 2px; transition: transform 0.2s ease; box-shadow: 0 1px 3px rgba(15,23,42,0.25); }
+.switch input:checked + .switch-track { background: var(--accent); }
+.switch input:checked + .switch-track::after { transform: translateX(18px); }
+.switch-text { font-size: 12px; color: var(--muted); }
+[data-theme="light"] .switch-track::after { box-shadow: 0 1px 2px rgba(15,23,42,0.15); }
+
 /* Chips de duración */
-.duration-chips { display: flex; align-items: center; gap: 8px; margin-left: 6px; }
-.chip-group { display: flex; gap: 8px; }
-.chip { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); padding: 8px 10px; border-radius: 999px; cursor: pointer; }
-.chip:hover { border-color: var(--accent); }
-.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.duration-chips { display: flex; align-items: center; gap: 12px; margin-left: 16px; }
+.chip-group { display: flex; gap: 10px; }
+.chip { background: var(--input-bg); color: var(--text); border: 1px solid var(--border); padding: 8px 14px; border-radius: 999px; cursor: pointer; transition: all 0.15s ease; }
+.chip:hover { border-color: var(--accent); box-shadow: 0 2px 6px rgba(37,99,235,0.15); }
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
 button[disabled] { opacity: 0.5; cursor: not-allowed; }
 .game-question { margin-top: 12px; font-size: 16px; }
 .game-answer input { width: 100%; margin-top: 8px; }
@@ -305,16 +322,44 @@ button[disabled] { opacity: 0.5; cursor: not-allowed; }
 /* Simulador */
 .form-grid-sim { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 12px; align-items: end; }
 .form-grid-sim .span-2 { grid-column: span 2; }
-.mode { border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin: 0; display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; }
+.subnet-grid { grid-template-columns: minmax(240px, 2fr) minmax(280px, 3fr) minmax(220px, 1.2fr) minmax(120px, 0.8fr); column-gap: 16px; row-gap: 8px; align-items: end; }
+.subnet-grid .mode { grid-column: 3; grid-row: 1; justify-self: center; }
+.subnet-grid .actions { grid-column: 4; grid-row: 2; justify-self: end; align-self: end; }
+.subnet-grid #flsm-controls, .subnet-grid #vlsm-controls { grid-row: 2; align-self: end; }
+.subnet-grid #flsm-controls { grid-column: 1 / span 2; display: grid; grid-template-columns: repeat(2, minmax(150px, 1fr)); gap: 12px; }
+.subnet-grid #vlsm-controls { grid-column: 1 / span 3; display: grid; grid-template-columns: minmax(300px, 1fr); }
+.subnet-grid #vlsm-controls input { width: 100%; }
+.calc-grid { grid-template-columns: minmax(240px, 2fr) minmax(260px, 3fr) minmax(140px, 1fr) minmax(140px, 1fr); gap: 16px; align-items: end; }
+.calc-grid label { align-self: end; }
+.mode { border: 1px solid var(--border); border-radius: 10px; padding: 8px; margin: 0; display: flex; align-items: center; gap: 12px; flex-wrap: nowrap; }
 .mode legend { color: var(--muted); font-size: 12px; }
 .mode .inline { margin-right: 0; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .mode input[type="radio"] { accent-color: var(--accent); }
 .actions { display: flex; align-items: center; gap: 10px; }
+/* Airea un poco el botón respecto al fieldset */
+.subnet-grid .actions button { margin-left: 0; }
+
+/* Ocultar con seguridad los controles del modo no activo */
+.mode-controls[hidden] { display: none !important; }
+
+/* Layout más compacto cuando el modo es VLSM */
+.subnet-grid[data-mode="vlsm"] #vlsm-controls { grid-column: 1 / span 2; }
+.subnet-grid[data-mode="vlsm"] .actions { grid-column: 3; grid-row: 2; justify-self: start; }
+/* En FLSM acercamos el botón a los campos (evita la columna vacía 3) */
+.subnet-grid[data-mode="flsm"] #flsm-controls { grid-column: 1 / span 2; }
+.subnet-grid[data-mode="flsm"] .actions { grid-column: 3; grid-row: 2; justify-self: start; }
+.subnet-grid[data-mode="flsm"] { column-gap: 12px; }
+/* Dentro de FLSM, no expandir los campos; mantenerlos juntos a la izquierda */
+.subnet-grid[data-mode="flsm"] #flsm-controls { grid-template-columns: repeat(2, max-content); justify-items: start; column-gap: 12px; }
+
+/* Un poco menos de separación vertical en la segunda fila */
+.subnet-grid { row-gap: 6px; }
 
 /* Subnetting: compactar controles y evitar entradas demasiado largas */
 #subnetting .cidr-control { max-width: 320px; }
-#vlsm-controls { grid-column: span 2; }
-.dim { opacity: 0.5; }
+
+.form-grid-sim label.disabled-field { opacity: 0.5; }
+.form-grid-sim label.disabled-field input { cursor: not-allowed; background: rgba(148,163,184,0.12); }
 
 /* Rehabilitar flechas en number dentro de FLSM */
 #flsm-controls input[type=number]::-webkit-outer-spin-button,
@@ -343,6 +388,8 @@ button[disabled] { opacity: 0.5; cursor: not-allowed; }
 @media (max-width: 900px) {
   .form-grid { grid-template-columns: 1fr; }
   .form-grid-sim { grid-template-columns: 1fr; }
+  .calc-grid { grid-template-columns: 1fr; }
+  #flsm-controls, #vlsm-controls, .form-grid-sim .actions { grid-column: 1; }
   .grid-2 { grid-template-columns: 1fr; }
   .bits-row { grid-template-columns: 70px 1fr; }
   .mode { flex-wrap: wrap; }

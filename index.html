@@ -228,7 +228,7 @@
       <!-- SUBNETTING: FLSM y VLSM -->
       <section id="subnetting" class="tab-panel" role="tabpanel" hidden>
         <h2>Subnetting</h2>
-        <div class="card form-grid-sim">
+        <div class="card form-grid-sim subnet-grid">
           <label>
             <span>Red base (IP)</span>
             <input id="sim-ip" type="text" inputmode="numeric" placeholder="e.g. 192.168.0.0" />
@@ -258,7 +258,7 @@
             </label>
           </div>
 
-          <div id="vlsm-controls" class="mode-controls">
+          <div id="vlsm-controls" class="mode-controls" hidden>
             <label class="span-2">
               <span>Hosts por subred (separados por coma/espacio)</span>
               <input id="sim-vlsm-hosts" type="text" placeholder="p.ej. 100, 50, 20, 5" />
@@ -298,7 +298,7 @@
       <!-- CALCULADORA: Bits interactivos -->
       <section id="calc" class="tab-panel" role="tabpanel" hidden>
         <h2>Calculadora Interactiva</h2>
-        <div class="card form-grid-sim">
+        <div class="card form-grid-sim calc-grid">
           <label>
             <span>Red base (IP)</span>
             <input id="bits-sim-ip" type="text" inputmode="numeric" placeholder="e.g. 192.168.1.0" />
@@ -310,14 +310,21 @@
               <output id="bits-cidrValue">/24</output>
             </div>
           </label>
-          <label>
-            <span>Bloquear bits de red</span>
+          <label class="switch">
             <input id="bits-lock" type="checkbox" checked />
+            <span class="switch-track"></span>
+            <span class="switch-text">Bloquear red</span>
+          </label>
+          <label class="switch">
+            <input id="bits-help" type="checkbox" />
+            <span class="switch-track"></span>
+            <span class="switch-text">Pesos bits</span>
           </label>
         </div>
 
         <div class="card bits">
           <h3>IP resultante (clic para alternar bits)</h3>
+          <div class="bits-row invisible" id="row-weights"><div class="row-label">Pesos</div><div id="bits-weights" class="bits-32"></div></div>
           <div class="bits-row"><div class="row-label">IP</div><div id="bits-sim-grid" class="bits-32"></div></div>
           <div class="octets-row"><div class="row-label"></div><div id="bits-ip-octets" class="octets"></div></div>
           <div class="bits-row"><div class="row-label">Máscara</div><div id="bits-sim-mask" class="bits-32"></div></div>

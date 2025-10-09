@@ -14,17 +14,26 @@
   const simSummary = document.getElementById('sim-summary');
   const flsmControls = document.getElementById('flsm-controls');
   const vlsmControls = document.getElementById('vlsm-controls');
+  const subnetGrid = document.querySelector('.subnet-grid');
 
   if (!simIp) return; // pestaña no presente
+
+  function setDisabled(input, disabled) {
+    if (!input) return;
+    input.disabled = disabled;
+    const label = input.closest('label');
+    if (label) label.classList.toggle('disabled-field', disabled);
+  }
 
   function updateModeUI(){
     const mode = document.querySelector('input[name="sim-mode"]:checked').value;
     const isFlsm = mode === 'flsm';
-    // No ocultamos; sólo deshabilitamos y atenuamos el bloque no activo
-    [simSubBits, simSubnets].forEach(el => { if (el) el.disabled = !isFlsm; });
-    if (simVlsmHosts) simVlsmHosts.disabled = isFlsm;
-    if (flsmControls) flsmControls.classList.toggle('dim', !isFlsm);
-    if (vlsmControls) vlsmControls.classList.toggle('dim', isFlsm);
+    if (flsmControls) flsmControls.hidden = !isFlsm;
+    if (vlsmControls) vlsmControls.hidden = isFlsm;
+    setDisabled(simSubBits, !isFlsm);
+    setDisabled(simSubnets, !isFlsm);
+    setDisabled(simVlsmHosts, isFlsm);
+    if (subnetGrid) subnetGrid.dataset.mode = mode;
   }
   document.querySelectorAll('input[name="sim-mode"]').forEach(r => { r.addEventListener('change', updateModeUI); });
   updateModeUI();
