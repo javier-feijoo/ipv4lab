@@ -40,6 +40,15 @@
 
   simCidr.addEventListener('input', () => { simCidrVal.textContent = `/${simCidr.value}`; syncFlsmControls('cidr'); });
 
+  // Habilitar/Deshabilitar botón Simular según validez de IP base
+  function refreshSimRunState(){
+    if (!simRun) return;
+    const parsed = parseOctets(simIp.value);
+    const valid = !!parsed;
+    simRun.disabled = !valid;
+    simRun.title = valid ? '' : 'Introduce una IP base válida para simular';
+  }
+
   function renderRows(rows){
     simRows.innerHTML=''; let idx=1;
     for (const r of rows){
@@ -99,6 +108,29 @@
 
   // Sanitización de entradas
   IPv4.attachIpSanitizer(simIp);
+  // Normaliza IP base al salir o Enter, no mientras se escribe
+  simIp.addEventListener('blur', ()=>{
+    const ipO = parseOctets(simIp.value);
+    if (!ipO) return;
+    const basePrefix = clamp(Number(simCidr.value)|0,0,32);
+    const base = normalizeNetwork(ipO, basePrefix);
+    simIp.value = octetsToStr(fromUint32(base.netU));
+    refreshSimRunState();
+  });
+  simIp.addEventListener('keydown', (e)=>{
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const ipO = parseOctets(simIp.value);
+    if (!ipO) return;
+    const basePrefix = clamp(Number(simCidr.value)|0,0,32);
+    const base = normalizeNetwork(ipO, basePrefix);
+    simIp.value = octetsToStr(fromUint32(base.netU));
+    refreshSimRunState();
+  });
+  // Mientras escribe, el botón se deshabilita si no es una IP completa
+  simIp.addEventListener('input', refreshSimRunState);
+  // Inicializa estado del botón al cargar
+  refreshSimRunState();
   if (simVlsmHosts) simVlsmHosts.addEventListener('input', ()=>{ simVlsmHosts.value = simVlsmHosts.value.replace(/[^0-9,;\s]/g,''); });
   if (simSubBits) simSubBits.addEventListener('input', ()=>{ const basePrefix = clamp(Number(simCidr.value)|0,0,32); const maxSubBits = Math.max(0,32-basePrefix); let v=Math.floor(Number(simSubBits.value)||0); v = Math.min(Math.max(v,0),maxSubBits); simSubBits.value=String(v); });
   if (simSubnets) simSubnets.addEventListener('input', ()=>{ let v=Math.floor(Number(simSubnets.value)||1); v = Math.max(1,v); simSubnets.value=String(v); });

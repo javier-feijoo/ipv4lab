@@ -89,6 +89,12 @@ input[type="text"] {
   padding: 10px 12px;
   font-size: 14px;
 }
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--err);
+}
 .invalid { border-color: var(--err) !important; box-shadow: 0 0 0 2px rgba(220,38,38,0.15); }
 
 /* Select estilizado como input */

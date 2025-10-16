@@ -44,7 +44,7 @@
     if (maskSource==='cidr') maskInput.value = octetsToStr(maskO);
     const maskU = toUint32(maskO);
     renderBits(bitsMask, maskU, cidr, 'mask');
-    if (!ipO){ bitsIp.innerHTML = bitsNet.innerHTML = bitsBc.innerHTML = ''; outNet.textContent=outBc.textContent=outFirst.textContent=outLast.textContent=''; outHosts.textContent=outPrefix.textContent=outClass.textContent=outPrivate.textContent=''; explain.textContent='Introduce una IP válida.'; return; }
+    if (!ipO){ bitsIp.innerHTML = bitsNet.innerHTML = bitsBc.innerHTML = ''; outNet.textContent=outBc.textContent=outFirst.textContent=outLast.textContent=''; outHosts.textContent=outPrefix.textContent=outClass.textContent=outPrivate.textContent=''; explain.textContent=''; return; }
     const ipU = toUint32(ipO); const netU = network(ipU, maskU); const bcU = broadcast(netU, maskU);
     const fU = firstHost(netU, cidr); const lU = lastHost(bcU, cidr);
     renderBits(bitsIp, ipU, cidr, 'ip'); renderBits(bitsNet, netU, cidr, 'net'); renderBits(bitsBc, bcU, cidr, 'bc');
@@ -73,4 +73,3 @@
   // Defaults
   ipInput.value='192.168.1.10'; cidrRange.value='24'; maskSource='cidr'; updateAll();
 })();
-

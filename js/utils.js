@@ -48,17 +48,56 @@
   U.attachIpSanitizer = (el, opts={}) => {
     if (!el) return;
     const { requireValidMask=false } = opts;
-    el.addEventListener('input', () => {
-      const after = U.sanitizeIpString(el.value);
-      if (after !== el.value) el.value = after;
+
+    // Campo de ayuda inline (debajo del input)
+    let hintEl = el.parentElement && el.parentElement.querySelector && el.parentElement.querySelector('.field-hint');
+    if (!hintEl){
+      hintEl = document.createElement('small');
+      hintEl.className = 'field-hint';
+      hintEl.id = (el.id ? (el.id + '-hint') : ('hint-' + Math.random().toString(36).slice(2)));
+      hintEl.hidden = true;
+      // Inserta después del input dentro del mismo label/contenedor
+      if (el.parentElement) el.parentElement.appendChild(hintEl);
+      else el.insertAdjacentElement('afterend', hintEl);
+    }
+    // Accesibilidad: asocia el hint
+    try { el.setAttribute('aria-describedby', hintEl.id); } catch(_){}
+
+    function showHint(msg){
+      hintEl.textContent = msg;
+      hintEl.hidden = false;
+    }
+    function hideHint(){
+      hintEl.textContent = '';
+      hintEl.hidden = true;
+    }
+
+    function validateNow(){
       const parsed = U.parseOctets(el.value);
-      // En input, permitimos parciales (menos de 4 octetos), no marcamos error por eso
-      if (!parsed && el.value.includes('.')) { el.classList.remove('invalid'); return; }
-      if (!parsed) el.classList.add('invalid');
-      else if (requireValidMask) el.classList.toggle('invalid', U.cidrFromMask(parsed) < 0);
-      else el.classList.remove('invalid');
+      let msg = '';
+      let invalid = false;
+      if (!parsed) { invalid = true; msg = requireValidMask? 'Máscara de subred inválida' : 'IP inválida'; }
+      else if (requireValidMask) { invalid = (U.cidrFromMask(parsed) < 0); if (invalid) msg = 'Máscara de subred inválida'; }
+      el.classList.toggle('invalid', invalid);
+      el.setAttribute('aria-invalid', invalid ? 'true' : 'false');
+      if (invalid) { showHint(msg); try { el.setCustomValidity(msg); } catch(_){} el.title = msg; try { el.reportValidity(); } catch(_){} }
+      else { hideHint(); try { el.setCustomValidity(''); } catch(_){} el.title=''; }
+      return !invalid;
+    }
+
+    // Al escribir: no validar, pero limpia estados de error para no molestar
+    el.addEventListener('input', () => {
+      el.classList.remove('invalid');
+      el.setAttribute('aria-invalid', 'false');
+      hideHint();
+      try { el.setCustomValidity(''); } catch(_){}
+      el.title='';
     });
-    el.addEventListener('blur', () => { const parsed = U.parseOctets(el.value); if (!parsed) el.classList.add('invalid'); });
+
+    // Validación al finalizar (blur)
+    el.addEventListener('blur', validateNow);
+    // Validación al presionar Enter
+    el.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') { e.preventDefault(); validateNow(); } });
   };
 
   w.IPv4 = U;
