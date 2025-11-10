@@ -62,3 +62,9 @@ Ejemplo (`192.168.10.0/24` con `100, 50, 20`): `/25` → `192.168.10.0/25`; `/26
 - Si una máscara no es “1s seguidos y luego 0s”, no es CIDR válida.
 - Usa el bloque para saltar entre subredes en el octeto donde cambia el prefijo.
 - Rangos privados no son enrutables en Internet; se usan en LANs.
+
+## Recordatorio rápido
+
+- Por cada subred IPv4 tradicional hay 2 direcciones no asignables a hosts: red y broadcast.
+- Para dimensionar por hosts, usa: `prefijo = 32 − ceil(log2(hosts + 2))` y bloque `2^(32 − prefijo)`.
+- Los prefijos `/31` y `/32` se reservan para casos puntuales (enlaces punto a punto o direcciones de host únicas) y no aplican cuando dimensionas por “hosts utilizables en una subred”.

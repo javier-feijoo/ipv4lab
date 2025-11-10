@@ -73,7 +73,17 @@
     simAlert.textContent=''; simAlert.className='sim-alert'; renderRows(rows);
   }
 
-  function hostsToPrefix(h){ h=Number(h)|0; if (h<=0) return null; if (h===1) return 32; if (h===2) return 31; const need=h+2; const p=32-Math.ceil(Math.log2(need)); return clamp(p,0,30); }
+  // Calcula el prefijo mínimo para un requisito de hosts "utilizables".
+  // Siempre reserva 2 direcciones adicionales (red y broadcast).
+  // Se evita devolver /31 o /32 para solicitudes de "hosts" de VLSM,
+  // pues esos prefijos no tienen el par red/broadcast tradicional.
+  function hostsToPrefix(h){
+    h = Number(h) | 0;
+    if (h <= 0) return null;
+    const need = h + 2; // hosts solicitados + red + broadcast
+    const p = 32 - Math.ceil(Math.log2(need));
+    return clamp(p, 0, 30); // limitar a /30 como máximo cuando se dimensiona por hosts
+  }
 
   function simulateVLSM(baseIpO, basePrefix, reqs){
     const base = normalizeNetwork(baseIpO, basePrefix); const baseSize = blockSizeFromPrefix(basePrefix); const baseEnd=(base.netU + baseSize)>>>0;
