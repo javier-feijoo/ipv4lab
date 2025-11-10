@@ -80,9 +80,11 @@
   function hostsToPrefix(h){
     h = Number(h) | 0;
     if (h <= 0) return null;
-    const need = h + 2; // hosts solicitados + red + broadcast
+    // Dimensiona por total de IPs = hosts + red + broadcast
+    const need = h + 2;
     const p = 32 - Math.ceil(Math.log2(need));
-    return clamp(p, 0, 30); // limitar a /30 como máximo cuando se dimensiona por hosts
+    // Limitar a /30 como máximo al dimensionar por hosts (evita /31-/32)
+    return clamp(p, 0, 30);
   }
 
   function simulateVLSM(baseIpO, basePrefix, reqs){
